@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   NgZone,
   Self,
@@ -18,6 +19,10 @@ import { EndpointService } from './endpoint.service';
   styleUrls: ['./app.component.css'],
   providers: [EndpointService],
   viewProviders: [RxEffects],
+
+  // Having this in the parent component doesn't work with Angular v14 and latest @rx-angular
+  // This works with Angular v13 + latest @rxangular
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   @ViewChild('sheetSlot', { static: false, read: ViewContainerRef })
@@ -34,17 +39,24 @@ export class AppComponent {
       this._showSheet$.asObservable().pipe(
         exhaustMap(() =>
           defer(() => {
-            console.log('Import promise NgZone = ', NgZone.isInAngularZone());
+            console.log(
+              'DEBUG:: Import promise NgZone =',
+              NgZone.isInAngularZone()
+            );
+
             return import('./sort-sheet/sort-sheet.component');
           }).pipe(
             observeOn(enterNgZone(this._ngZone)),
 
             switchMap(({ SortSheetComponent }) => {
               console.log(
-                'Sheet construction NgZone = ',
+                'DEBUG:: Sheet construction NgZone = ',
                 NgZone.isInAngularZone()
               );
 
+              // To make CD work for this, I need to remove the `observeOn` + `enterNgZone` function.
+              // And wrap this MatBottomSheet.open in an `NgZone.run` call.
+              // Or, remove the `unpatch` directive altogether and the `OnPush` CD
               const sheetRef = this._bottomSheet.open(SortSheetComponent, {
                 panelClass: '-rounded',
                 viewContainerRef: this.sheetSlot,

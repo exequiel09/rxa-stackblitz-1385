@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   NgModule,
-  OnInit,
+  NgZone,
 } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 
@@ -19,7 +19,9 @@ import { EndpointService } from '../endpoint.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SortSheetComponent {
-  constructor(public readonly endpointService: EndpointService) {}
+  constructor(public readonly endpointService: EndpointService) {
+    console.log('DEBUG:: sort sheet constructor', NgZone.isInAngularZone());
+  }
 
   handleClick(item: any) {
     console.log('Clicked item: ', item);
