@@ -1,0 +1,16 @@
+<section>
+  <h3>Sort</h3>
+
+  <mat-action-list>
+    <button
+      class="item"
+      type="button"
+      mat-list-item
+      [unpatch]="['click']"
+      (click)="handleClick(item)"
+      *rxFor="let item of endpointService.item$; trackBy: trackByKey"
+    >
+      <span class="text">{{ item.value }}</span>
+    </button>
+  </mat-action-list>
+</section>
